@@ -216,7 +216,7 @@ exports.respond = async (user, params, body) => {
     }
 
     // Accept
-    const escrowWallet = solana.create();
+    const escrowWallet = await solana.create();
 
     const accepted = await Escrow.findOneAndUpdate(
         {

@@ -22,20 +22,20 @@ const COMMITMENT = process.env.SOLANA_COMMITMENT || 'confirmed';
 const connection = new Connection(process.env.SOLANA_RPC_URL, COMMITMENT);
 
 // To Lamports
-exports.toLamports = (sol) => Math.round(sol * LAMPORTS_PER_SOL);
+exports.toLamports = (sol) => BigInt(Math.round(sol * LAMPORTS_PER_SOL));
 
 // To SOL
-exports.toSol = (lamports) => lamports / LAMPORTS_PER_SOL;
+exports.toSol = (lamports) => Number(lamports) / LAMPORTS_PER_SOL;
 
 // To Keypair
 const toKeypair = (encryptedPrivateKey) => {
-    return Keypair.fromSecretKey(Buffer.from(encryption.decrypt(encryptedPrivateKey), 'base64'));
+    return Keypair.fromSecretKey(new Uint8Array(Buffer.from(encryption.decrypt(encryptedPrivateKey), 'base64')));
 };
 
 // Create
-exports.create = () => {
+exports.create = async () => {
 
-    const keypair = Keypair.generate();
+    const keypair = await Keypair.generate();
 
     return {
         publicKey: keypair.publicKey.toBase58(),
@@ -67,7 +67,7 @@ exports.unsubscribe = (subscriptionID) => {
 // Transfer
 exports.transfer = async (encryptedPrivateKey, destination) => {
 
-    const sender = toKeypair(encryptedPrivateKey);
+    const sender = await toKeypair(encryptedPrivateKey);
     const recipient = new PublicKey(destination);
 
     const [balance, { blockhash, lastValidBlockHeight }] = await Promise.all([
@@ -93,7 +93,7 @@ exports.transfer = async (encryptedPrivateKey, destination) => {
 
     const lamports = balance - fee;
 
-    if (lamports <= 0) {
+    if (lamports <= 0n) {
         throw new Error('Insufficient balance to cover the transaction fee.');
     }
 
