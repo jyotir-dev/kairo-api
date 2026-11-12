@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "express-rate-limit": "^8.7.4",
-    "mongoose": "^9.12.1"
+    "mongoose": "^9.12.1",
+    "nodemailer": "^10.5.0"
   }
 }
